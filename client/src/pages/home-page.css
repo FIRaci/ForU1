@@ -1,0 +1,136 @@
+/* Home page styles */
+
+.home__hero {
+  text-align: center;
+  padding: 4rem 1.5rem 2.5rem;
+  background: var(--gradient-bg);
+}
+
+.home__title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.home__title-accent {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.home__subtitle {
+  font-size: 1.15rem;
+  color: var(--color-text-secondary);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Section Heading */
+.home__section-heading {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+}
+
+/* Folder Grid */
+.home__folders {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.home__folder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* Recent Meme Grid */
+.home__recent {
+  padding-top: 1rem;
+  padding-bottom: 3rem;
+}
+
+.home__meme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Skeleton Loading */
+.home__skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.home__skeleton-card {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    110deg,
+    var(--color-border) 30%,
+    var(--color-bg-alt) 50%,
+    var(--color-border) 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty State */
+.home__empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--color-border);
+}
+
+.home__empty-text {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home__hero {
+    padding: 2.5rem 1rem 1.5rem;
+  }
+
+  .home__title {
+    font-size: 2.2rem;
+  }
+
+  .home__subtitle {
+    font-size: 1rem;
+  }
+
+  .home__folder-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .home__meme-grid,
+  .home__skeleton-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home__meme-grid,
+  .home__skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+}

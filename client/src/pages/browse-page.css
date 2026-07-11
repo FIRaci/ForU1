@@ -1,0 +1,113 @@
+/* Browse page styles */
+
+.browse {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+/* Breadcrumb */
+.browse__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.browse__breadcrumb-link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.browse__breadcrumb-link:hover {
+  color: var(--color-primary);
+}
+
+.browse__breadcrumb-current {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Heading */
+.browse__heading {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+/* Date group */
+.browse__date-group {
+  margin-bottom: 2rem;
+}
+
+/* Grid */
+.browse__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+/* Skeleton grid */
+.browse__skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.browse__skeleton-card {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    110deg,
+    var(--color-border) 30%,
+    var(--color-bg-alt) 50%,
+    var(--color-border) 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Empty state */
+.browse__empty {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--color-border);
+}
+
+.browse__empty-text {
+  font-size: 1.15rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.browse__empty-hint {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .browse__heading {
+    font-size: 1.6rem;
+  }
+
+  .browse__grid,
+  .browse__skeleton-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .browse__grid,
+  .browse__skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+}

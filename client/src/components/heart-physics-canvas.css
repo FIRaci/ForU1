@@ -1,0 +1,23 @@
+/* ---- Heart Physics Canvas ---- */
+.heart-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-hearts);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.heart-canvas__heart {
+  position: absolute;
+  font-size: 26px;
+  pointer-events: auto;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  will-change: transform;
+  filter: drop-shadow(0 2px 4px rgba(225, 29, 72, 0.2));
+}
+
+.heart-canvas__heart:active {
+  cursor: grabbing;
+}

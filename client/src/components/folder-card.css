@@ -1,0 +1,53 @@
+/* ---- Folder Card ---- */
+.folder-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: box-shadow var(--transition-base);
+  border: 1.5px solid var(--color-border);
+  width: 100%;
+}
+
+.folder-card:hover {
+  box-shadow: var(--shadow-xl);
+  border-color: var(--color-primary-soft);
+}
+
+/* Folder icon wrapper with inner icon overlay */
+.folder-card__icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 80px;
+}
+
+.folder-card__inner-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -35%);
+}
+
+.folder-card__label {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.folder-card__count {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  background: var(--color-bg-alt);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}

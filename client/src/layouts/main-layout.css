@@ -1,0 +1,104 @@
+/* ---- Main Layout ---- */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ---- Header ---- */
+.layout__header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  height: var(--header-height);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.layout__header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* Brand logo — gradient text */
+.layout__brand {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  transition: opacity var(--transition-fast);
+}
+.layout__brand:hover {
+  opacity: 0.8;
+}
+
+/* Navigation */
+.layout__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.layout__nav-link {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.layout__nav-link:hover {
+  color: var(--color-text);
+  background: var(--color-bg-alt);
+}
+
+.layout__nav-link.is-active {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+/* Main */
+.layout__main {
+  flex: 1;
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-16);
+}
+
+/* Footer */
+.layout__footer {
+  padding: var(--space-6) 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.layout__footer-heart {
+  color: var(--color-primary);
+  display: inline-block;
+  animation: footer-heartbeat 1.2s ease-in-out infinite;
+}
+
+@keyframes footer-heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Mobile nav tweaks */
+@media (max-width: 480px) {
+  .layout__nav-link {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+  }
+  .layout__brand {
+    font-size: var(--text-xl);
+  }
+}

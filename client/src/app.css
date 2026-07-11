@@ -1,0 +1,6 @@
+/* App-level layout styles */
+
+/* Smooth page transitions */
+.layout__main {
+  min-height: calc(100vh - 180px);
+}
