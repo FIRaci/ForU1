@@ -17,8 +17,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 /* ---- CORS ---- */
+const corsOrigin = (process.env.CORS_ORIGIN || 'http://localhost:5173').replace(/\/+$/, '');
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: corsOrigin,
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'X-Device-ID', 'X-Admin-Key'],
 }));

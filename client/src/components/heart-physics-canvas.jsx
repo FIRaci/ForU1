@@ -1,21 +1,35 @@
-/* Heart physics canvas — matter-js powered heart rain overlay */
+/* Heart physics canvas — matter-js powered heart rain overlay with SVG hearts */
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Matter from 'matter-js';
 import './heart-physics-canvas.css';
 
-const HEART_EMOJIS = ['❤️', '🩷', '💗', '💕', '💖', '🫶'];
+/** Heart color palette — warm pinks and reds */
+const HEART_COLORS = [
+  '#E11D48', '#F43F5E', '#FB7185', '#FDA4AF',
+  '#FF6B9D', '#FF1493', '#FF69B4', '#C71585',
+];
 const HEART_SIZE = 28;
 
-/** Pick a random heart emoji */
-const randomHeart = () => HEART_EMOJIS[Math.floor(Math.random() * HEART_EMOJIS.length)];
+/** Pick a random heart color */
+const randomColor = () => HEART_COLORS[Math.floor(Math.random() * HEART_COLORS.length)];
+
+/** SVG heart path for rendering */
+function HeartSvg({ color, size = HEART_SIZE }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
 
 export default function HeartPhysicsCanvas() {
   const containerRef = useRef(null);
   const engineRef = useRef(null);
-  const heartsRef = useRef([]); // { body, id }
-  const [hearts, setHearts] = useState([]); // render state: { id, x, y, angle, emoji }
+  const heartsRef = useRef([]); // { body, id, color }
+  const [hearts, setHearts] = useState([]); // render state
   const rafRef = useRef(null);
   const idCounter = useRef(0);
+  const clickCountRef = useRef(0);
 
   /* Initialize Matter.js engine + world boundaries */
   useEffect(() => {
@@ -25,14 +39,13 @@ export default function HeartPhysicsCanvas() {
     const createWalls = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const t = 50; // thickness
+      const t = 50;
       Matter.Composite.clear(engine.world, false, true);
-      // Re-add heart bodies after clearing
       heartsRef.current.forEach(({ body }) => Matter.Composite.add(engine.world, body));
       Matter.Composite.add(engine.world, [
-        Matter.Bodies.rectangle(w / 2, h + t / 2, w + 100, t, { isStatic: true }), // floor
-        Matter.Bodies.rectangle(-t / 2, h / 2, t, h * 2, { isStatic: true }),       // left
-        Matter.Bodies.rectangle(w + t / 2, h / 2, t, h * 2, { isStatic: true }),     // right
+        Matter.Bodies.rectangle(w / 2, h + t / 2, w + 100, t, { isStatic: true }),
+        Matter.Bodies.rectangle(-t / 2, h / 2, t, h * 2, { isStatic: true }),
+        Matter.Bodies.rectangle(w + t / 2, h / 2, t, h * 2, { isStatic: true }),
       ]);
     };
 
@@ -43,8 +56,8 @@ export default function HeartPhysicsCanvas() {
     const tick = () => {
       Matter.Engine.update(engine, 1000 / 60);
       setHearts(
-        heartsRef.current.map(({ body, id, emoji }) => ({
-          id, emoji,
+        heartsRef.current.map(({ body, id, color }) => ({
+          id, color,
           x: body.position.x,
           y: body.position.y,
           angle: body.angle,
@@ -61,27 +74,37 @@ export default function HeartPhysicsCanvas() {
     };
   }, []);
 
-  /* Spawn hearts on custom event */
+  /* Spawn hearts — more clicks = more hearts (cumulative burst) */
   const spawnHearts = useCallback(() => {
     const engine = engineRef.current;
     if (!engine) return;
-    const count = 10 + Math.floor(Math.random() * 20);
-    const newBodies = [];
 
+    /* Each consecutive click within 2 seconds increases burst size */
+    clickCountRef.current += 1;
+    const multiplier = Math.min(clickCountRef.current, 5); // cap at 5x
+    const count = (8 + Math.floor(Math.random() * 12)) * multiplier;
+
+    /* Reset click counter after 2 seconds of inactivity */
+    clearTimeout(clickCountRef.timeout);
+    clickCountRef.timeout = setTimeout(() => { clickCountRef.current = 0; }, 2000);
+
+    const newBodies = [];
     for (let i = 0; i < count; i++) {
       const x = Math.random() * window.innerWidth;
-      const y = -50 - Math.random() * 200;
+      const y = -30 - Math.random() * 300;
       const body = Matter.Bodies.circle(x, y, HEART_SIZE / 2, {
-        restitution: 0.5,
-        friction: 0.3,
-        frictionAir: 0.01,
+        restitution: 0.6,
+        friction: 0.2,
+        frictionAir: 0.008,
         density: 0.002,
       });
-      /* Random initial spin + horizontal drift */
-      Matter.Body.setVelocity(body, { x: (Math.random() - 0.5) * 3, y: Math.random() * 2 });
-      Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1);
+      Matter.Body.setVelocity(body, {
+        x: (Math.random() - 0.5) * 5,
+        y: Math.random() * 3 + 1,
+      });
+      Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.15);
       const id = ++idCounter.current;
-      newBodies.push({ body, id, emoji: randomHeart() });
+      newBodies.push({ body, id, color: randomColor() });
       Matter.Composite.add(engine.world, body);
     }
     heartsRef.current = [...heartsRef.current, ...newBodies];
@@ -118,20 +141,23 @@ export default function HeartPhysicsCanvas() {
     const vx = (e.clientX - lastX) / dt * 0.01;
     const vy = (e.clientY - lastY) / dt * 0.01;
     Matter.Body.setStatic(heart.body, false);
-    Matter.Body.setVelocity(heart.body, { x: Math.max(-15, Math.min(15, vx)), y: Math.max(-15, Math.min(15, vy)) });
+    Matter.Body.setVelocity(heart.body, {
+      x: Math.max(-15, Math.min(15, vx)),
+      y: Math.max(-15, Math.min(15, vy)),
+    });
     dragRef.current = null;
   };
 
   return (
     <div ref={containerRef} className="heart-canvas">
-      {hearts.map(({ id, x, y, angle, emoji }) => (
+      {hearts.map(({ id, x, y, angle, color }) => (
         <span key={id} className="heart-canvas__heart"
           style={{ left: x, top: y, transform: `translate(-50%, -50%) rotate(${angle}rad)` }}
           onPointerDown={(e) => onPointerDown(e, id)}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
         >
-          {emoji}
+          <HeartSvg color={color} />
         </span>
       ))}
     </div>
