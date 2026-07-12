@@ -39,20 +39,12 @@ app.use(express.json());
 /* ---- Rate limiting ---- */
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200,
+  max: 1000, // Increased to 1000 to prevent 429 errors for heavy users
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later' },
 });
 app.use(globalLimiter);
-
-/* Upload-specific stricter limit */
-const uploadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: { error: 'Upload limit reached, try again later' },
-});
-app.post('/api/memes', uploadLimiter);
 
 /* ---- API Routes ---- */
 app.use('/api/memes', memeRoutes);
