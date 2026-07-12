@@ -11,20 +11,11 @@ function triggerHeartRain() {
   window.dispatchEvent(new CustomEvent('heart-rain'));
 }
 
-/**
- * Vacuum effect — sucks hearts upwards
- */
-function toggleVacuum(active) {
-  window.dispatchEvent(new CustomEvent('heart-vacuum', { detail: active }));
-}
-
 export default function HeartRainButton() {
   return (
     <motion.button
       className="heart-rain-btn"
       onClick={triggerHeartRain}
-      onMouseEnter={() => toggleVacuum(true)}
-      onMouseLeave={() => toggleVacuum(false)}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       title="Rain hearts!"

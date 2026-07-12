@@ -31,15 +31,6 @@ export default function HeartPhysicsCanvas() {
   const idCounter = useRef(0);
   const clickCountRef = useRef(0);
 
-  const vacuumActiveRef = useRef(false);
-
-  /* Listen for vacuum events */
-  useEffect(() => {
-    const handleVacuum = (e) => { vacuumActiveRef.current = e.detail; };
-    window.addEventListener('heart-vacuum', handleVacuum);
-    return () => window.removeEventListener('heart-vacuum', handleVacuum);
-  }, []);
-
   /* Initialize Matter.js engine + world boundaries */
   useEffect(() => {
     /* Slightly heavier gravity for faster fall */
@@ -66,16 +57,6 @@ export default function HeartPhysicsCanvas() {
     /* Physics loop */
     const tick = () => {
       Matter.Engine.update(engine, 1000 / 60);
-
-      /* Vacuum effect: apply continuous upward force to all hearts */
-      if (vacuumActiveRef.current) {
-        heartsRef.current.forEach(({ body }) => {
-          // Add a little random X force so they swirl
-          const swirl = (Math.random() - 0.5) * 0.0002;
-          // Increased vacuum force to overcome heavier gravity
-          Matter.Body.applyForce(body, body.position, { x: swirl, y: -0.0008 });
-        });
-      }
 
       setHearts(
         heartsRef.current.map(({ body, id, color }) => ({
