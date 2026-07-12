@@ -57,10 +57,11 @@ export async function deleteStoredFile(filename) {
 /**
  * Build the public URL path for a stored file.
  * @param {string} filename
- * @returns {string} URL path like /uploads/abc-123.jpg
+ * @returns {string} Absolute URL to the file
  */
 export function getFileUrl(filename) {
-  return `/uploads/${filename}`;
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.API_BASE_URL || 'http://localhost:3001';
+  return `${baseUrl}/uploads/${filename}`;
 }
 
 export { UPLOAD_DIR };
