@@ -12,83 +12,121 @@
 .viewer-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .viewer-modal__content {
   position: relative;
   background: var(--color-surface);
   border-radius: var(--radius-2xl);
-  max-width: 680px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-xl);
+  width: 95vw;
+  max-width: 1400px;
+  height: 95vh;
+  max-height: 900px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   z-index: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden; /* Keeps child border-radius neat */
 }
 
-/* Close button */
+/* Close button - Top right of the modal */
 .viewer-modal__close {
   position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
+  top: var(--space-4);
+  right: var(--space-4);
   width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   z-index: 10;
   transition: all var(--transition-fast);
-  color: var(--color-text-secondary);
+  color: var(--color-text);
+  cursor: pointer;
 }
 
 .viewer-modal__close:hover {
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: var(--color-bg-hover);
   transform: rotate(90deg);
 }
 
-/* Media area */
+/* Media area (Left side, takes maximum space) */
 .viewer-modal__media {
-  width: 100%;
-  max-height: 60vh;
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-  overflow: hidden;
-  background: var(--color-bg-alt);
+  flex: 1;
+  min-width: 0;
+  background: #000; /* Cinematic black background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
 .viewer-modal__media .media-preview {
-  min-height: 250px;
+  width: 100%;
+  height: 100%;
+  background: transparent;
 }
 
-/* Info section */
+/* Info section (Right sidebar) */
 .viewer-modal__info {
-  padding: var(--space-5) var(--space-6) var(--space-6);
+  width: 380px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  padding: var(--space-6);
+  padding-top: calc(var(--space-6) + 36px); /* Space for close button */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .viewer-modal__title {
   font-family: var(--font-heading);
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--color-text);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
+  line-height: 1.3;
 }
 
 .viewer-modal__date {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
-/* Mobile fullscreen */
-@media (max-width: 640px) {
+/* Mobile fullscreen (Stack vertically) */
+@media (max-width: 800px) {
   .viewer-modal__content {
-    max-height: 95vh;
-    border-radius: var(--radius-xl);
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .viewer-modal__close {
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: #fff;
+  }
+
+  .viewer-modal__media {
+    flex: none;
+    height: 50vh;
+  }
+
+  .viewer-modal__info {
+    width: 100%;
+    flex: 1;
+    padding-top: var(--space-5);
+    border-left: none;
+    border-top: 1px solid var(--color-border);
   }
 }
