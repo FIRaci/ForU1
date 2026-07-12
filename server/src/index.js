@@ -12,6 +12,8 @@ import memeRoutes from './routes/meme-routes.js';
 import reactionRoutes from './routes/reaction-routes.js';
 import statsRoutes from './routes/stats-routes.js';
 import { ensureUploadDir, UPLOAD_DIR } from './services/file-storage-service.js';
+import prisma from './lib/prisma.js';
+import { access } from 'fs/promises';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -83,6 +85,30 @@ app.use((err, _req, res, _next) => {
   console.error('[Server] Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+/* ---- Auto-heal database vs ephemeral disk ---- */
+async function autoHealDatabase() {
+  try {
+    const memes = await prisma.meme.findMany({ select: { id: true, filename: true } });
+    let deletedCount = 0;
+    for (const m of memes) {
+      const filePath = join(UPLOAD_DIR, m.filename);
+      try {
+        await access(filePath);
+      } catch {
+        // File is missing (probably disk wiped), delete record to prevent 404s
+        await prisma.meme.delete({ where: { id: m.id } });
+        deletedCount++;
+      }
+    }
+    if (deletedCount > 0) {
+      console.log(`[Heal] Automatically deleted ${deletedCount} orphaned DB records because their local files were wiped.`);
+    }
+  } catch (err) {
+    console.error('[Heal] Error checking database sync:', err.message);
+  }
+}
+await autoHealDatabase();
 
 /* ---- Start ---- */
 app.listen(PORT, () => {
