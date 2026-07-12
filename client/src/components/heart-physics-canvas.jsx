@@ -42,8 +42,8 @@ export default function HeartPhysicsCanvas() {
 
   /* Initialize Matter.js engine + world boundaries */
   useEffect(() => {
-    /* Much lighter gravity for balloon effect */
-    const engine = Matter.Engine.create({ gravity: { x: 0, y: 0.1 } });
+    /* Slightly heavier gravity for faster fall */
+    const engine = Matter.Engine.create({ gravity: { x: 0, y: 0.25 } });
     engineRef.current = engine;
 
     const createWalls = () => {
@@ -71,8 +71,9 @@ export default function HeartPhysicsCanvas() {
       if (vacuumActiveRef.current) {
         heartsRef.current.forEach(({ body }) => {
           // Add a little random X force so they swirl
-          const swirl = (Math.random() - 0.5) * 0.0001;
-          Matter.Body.applyForce(body, body.position, { x: swirl, y: -0.0004 });
+          const swirl = (Math.random() - 0.5) * 0.0002;
+          // Increased vacuum force to overcome heavier gravity
+          Matter.Body.applyForce(body, body.position, { x: swirl, y: -0.0008 });
         });
       }
 
@@ -114,7 +115,7 @@ export default function HeartPhysicsCanvas() {
       const body = Matter.Bodies.circle(x, y, HEART_SIZE / 2, {
         restitution: 0.8,    // Bouncier
         friction: 0.1,
-        frictionAir: 0.04,   // High air friction = floaty like a balloon
+        frictionAir: 0.02,   // Reduced air friction so they fall faster
         density: 0.001,      // Very light
       });
       Matter.Body.setVelocity(body, {
