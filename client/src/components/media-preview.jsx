@@ -13,6 +13,7 @@ import './media-preview.css';
  */
 export default function MediaPreview({ src, mediaType, alt = '', mode = 'thumbnail', className = '' }) {
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
   const videoRef = useRef(null);
 
   const fitClass = mode === 'thumbnail' ? 'media-preview--cover' : 'media-preview--contain';
@@ -36,8 +37,9 @@ export default function MediaPreview({ src, mediaType, alt = '', mode = 'thumbna
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Skeleton loader */}
-      {!loaded && <div className="media-preview__skeleton skeleton" />}
+      {/* Skeleton loader / Error state */}
+      {!loaded && !error && <div className="media-preview__skeleton skeleton" />}
+      {error && <div className="media-preview__error">⚠️ Image unavailable</div>}
 
       {mediaType === 'video' ? (
         <>
@@ -50,9 +52,10 @@ export default function MediaPreview({ src, mediaType, alt = '', mode = 'thumbna
             preload="metadata"
             className={`media-preview__element ${loaded ? 'is-loaded' : ''}`}
             onLoadedData={() => setLoaded(true)}
+            onError={() => { setLoaded(true); setError(true); }}
           />
           {/* Play icon overlay for thumbnails */}
-          {mode === 'thumbnail' && loaded && (
+          {mode === 'thumbnail' && loaded && !error && (
             <div className="media-preview__play-overlay">
               <IconPlay size={32} color="#FFFFFF" />
             </div>
@@ -65,6 +68,7 @@ export default function MediaPreview({ src, mediaType, alt = '', mode = 'thumbna
           loading={mode === 'thumbnail' ? 'lazy' : 'eager'}
           className={`media-preview__element ${loaded ? 'is-loaded' : ''}`}
           onLoad={() => setLoaded(true)}
+          onError={() => { setLoaded(true); setError(true); }}
         />
       )}
     </div>

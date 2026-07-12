@@ -3,6 +3,7 @@ import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { IconX, IconUpload, IconCamera, IconFilm, IconVideo, IconCheck } from './icons';
 import { uploadMeme } from '../services/api-service';
+import imageCompression from 'browser-image-compression';
 import './admin-upload-modal.css';
 
 /* Detect media type from file */
@@ -59,8 +60,23 @@ export default function AdminUploadModal({ isOpen, onClose }) {
     setStatus('uploading'); setProgress(0);
     const interval = setInterval(() => setProgress((p) => Math.min(p + 8, 90)), 150);
     try {
+      let uploadFile = file;
+
+      /* Compress images to make them load 10x faster for users */
+      if (detectedType === 'image') {
+        try {
+          uploadFile = await imageCompression(file, {
+            maxSizeMB: 0.3,
+            maxWidthOrHeight: 1080,
+            useWebWorker: true,
+          });
+        } catch (e) {
+          console.warn('Compression failed', e);
+        }
+      }
+
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', uploadFile, file.name);
       fd.append('title', title.trim());
       if (description.trim()) fd.append('description', description.trim());
       const res = await uploadMeme(fd);
