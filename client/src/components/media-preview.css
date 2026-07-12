@@ -12,6 +12,14 @@
   position: absolute;
   inset: 0;
   z-index: 1;
+  background: linear-gradient(90deg, var(--color-bg-alt) 25%, var(--color-bg) 50%, var(--color-bg-alt) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite ease-in-out;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .media-preview__element {

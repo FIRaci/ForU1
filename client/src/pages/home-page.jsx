@@ -30,6 +30,33 @@ export default function HomePage() {
     fetchData();
   }, []);
 
+  /* Listen to global events for optimistic updates without reloading */
+  useEffect(() => {
+    const handleUpload = (e) => {
+      setRecentMemes((prev) => [e.detail, ...prev].slice(0, 6));
+      setStats((prev) => {
+        const key = e.detail.media_type + 's';
+        return { ...prev, [key]: (prev[key] || 0) + 1 };
+      });
+    };
+    const handleReact = (e) => {
+      const { memeId, likes, dislikes, userReaction } = e.detail;
+      setRecentMemes((prev) => prev.map(m => 
+        m.id === memeId ? { ...m, like_count: likes, dislike_count: dislikes, user_reaction: userReaction } : m
+      ));
+      if (selectedMeme?.id === memeId) {
+        setSelectedMeme((prev) => ({ ...prev, like_count: likes, dislike_count: dislikes, user_reaction: userReaction }));
+      }
+    };
+
+    window.addEventListener('meme-uploaded', handleUpload);
+    window.addEventListener('meme-reacted', handleReact);
+    return () => {
+      window.removeEventListener('meme-uploaded', handleUpload);
+      window.removeEventListener('meme-reacted', handleReact);
+    };
+  }, [selectedMeme]);
+
   return (
     <div className="home">
       {/* Hero Section */}

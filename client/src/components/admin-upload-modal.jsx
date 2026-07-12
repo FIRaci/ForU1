@@ -63,9 +63,10 @@ export default function AdminUploadModal({ isOpen, onClose }) {
       fd.append('file', file);
       fd.append('title', title.trim());
       if (description.trim()) fd.append('description', description.trim());
-      await uploadMeme(fd);
+      const res = await uploadMeme(fd);
       clearInterval(interval);
       setProgress(100); setStatus('success');
+      window.dispatchEvent(new CustomEvent('meme-uploaded', { detail: res }));
     } catch (err) {
       clearInterval(interval);
       setError(err.message || 'Upload failed');

@@ -51,6 +51,31 @@ export default function BrowsePage() {
       .finally(() => setLoading(false));
   }, [type]);
 
+  /* Listen to global events for optimistic updates without reloading */
+  useEffect(() => {
+    const handleUpload = (e) => {
+      if (!type || type === e.detail.media_type) {
+        setMemes((prev) => [e.detail, ...prev]);
+      }
+    };
+    const handleReact = (e) => {
+      const { memeId, likes, dislikes, userReaction } = e.detail;
+      setMemes((prev) => prev.map(m => 
+        m.id === memeId ? { ...m, like_count: likes, dislike_count: dislikes, user_reaction: userReaction } : m
+      ));
+      if (selectedMeme?.id === memeId) {
+        setSelectedMeme((prev) => ({ ...prev, like_count: likes, dislike_count: dislikes, user_reaction: userReaction }));
+      }
+    };
+
+    window.addEventListener('meme-uploaded', handleUpload);
+    window.addEventListener('meme-reacted', handleReact);
+    return () => {
+      window.removeEventListener('meme-uploaded', handleUpload);
+      window.removeEventListener('meme-reacted', handleReact);
+    };
+  }, [type, selectedMeme]);
+
   const groups = useMemo(() => groupByDate(memes), [memes]);
 
   return (

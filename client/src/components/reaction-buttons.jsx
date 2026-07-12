@@ -24,20 +24,30 @@ export default function ReactionButtons({ memeId, initialLikes = 0, initialDisli
     const type = isLike ? 'like' : 'dislike';
     const wasActive = userReaction === type;
 
+    let newLikes = likes;
+    let newDislikes = dislikes;
+
     /* Optimistic update */
     if (wasActive) {
       setUserReaction(null);
-      isLike ? setLikes((l) => l - 1) : setDislikes((d) => d - 1);
+      isLike ? (newLikes -= 1) : (newDislikes -= 1);
     } else {
       /* Remove previous reaction if switching */
-      if (userReaction === 'like') setLikes((l) => l - 1);
-      if (userReaction === 'dislike') setDislikes((d) => d - 1);
+      if (userReaction === 'like') newLikes -= 1;
+      if (userReaction === 'dislike') newDislikes -= 1;
       setUserReaction(type);
-      isLike ? setLikes((l) => l + 1) : setDislikes((d) => d + 1);
+      isLike ? (newLikes += 1) : (newDislikes += 1);
     }
+
+    setLikes(newLikes);
+    setDislikes(newDislikes);
 
     try {
       await reactToMeme(memeId, isLike);
+      /* Dispatch event so other components (like home page list) can sync */
+      window.dispatchEvent(new CustomEvent('meme-reacted', {
+        detail: { memeId, likes: newLikes, dislikes: newDislikes, userReaction: wasActive ? null : type }
+      }));
     } catch {
       /* Revert on failure */
       setLikes(initialLikes);
