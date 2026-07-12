@@ -17,9 +17,18 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 /* ---- CORS ---- */
-const corsOrigin = (process.env.CORS_ORIGIN || 'http://localhost:5173').replace(/\/+$/, '');
+const allowedOrigin = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .replace(/\/+$/, '')   // strip trailing slashes
+  .toLowerCase();
+
 app.use(cors({
-  origin: corsOrigin,
+  origin: (origin, callback) => {
+    /* Allow requests with no origin (mobile apps, curl, server-to-server) */
+    if (!origin) return callback(null, true);
+    const normalized = origin.replace(/\/+$/, '').toLowerCase();
+    if (normalized === allowedOrigin) return callback(null, true);
+    callback(new Error(`CORS: ${origin} not allowed`));
+  },
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'X-Device-ID', 'X-Admin-Key'],
 }));
