@@ -48,11 +48,10 @@ export default function MainLayout({ children }) {
       {/* ---- Footer ---- */}
       <footer className="layout__footer">
         <p>
-          made with{' '}
+          made with love{' '}
           <span className="layout__footer-heart" aria-label="love">
             ♥
-          </span>{' '}
-          for the memes
+          </span>
         </p>
       </footer>
 

@@ -31,9 +31,19 @@ export default function HeartPhysicsCanvas() {
   const idCounter = useRef(0);
   const clickCountRef = useRef(0);
 
+  const vacuumActiveRef = useRef(false);
+
+  /* Listen for vacuum events */
+  useEffect(() => {
+    const handleVacuum = (e) => { vacuumActiveRef.current = e.detail; };
+    window.addEventListener('heart-vacuum', handleVacuum);
+    return () => window.removeEventListener('heart-vacuum', handleVacuum);
+  }, []);
+
   /* Initialize Matter.js engine + world boundaries */
   useEffect(() => {
-    const engine = Matter.Engine.create({ gravity: { x: 0, y: 0.8 } });
+    /* Much lighter gravity for balloon effect */
+    const engine = Matter.Engine.create({ gravity: { x: 0, y: 0.1 } });
     engineRef.current = engine;
 
     const createWalls = () => {
@@ -43,9 +53,10 @@ export default function HeartPhysicsCanvas() {
       Matter.Composite.clear(engine.world, false, true);
       heartsRef.current.forEach(({ body }) => Matter.Composite.add(engine.world, body));
       Matter.Composite.add(engine.world, [
-        Matter.Bodies.rectangle(w / 2, h + t / 2, w + 100, t, { isStatic: true }),
-        Matter.Bodies.rectangle(-t / 2, h / 2, t, h * 2, { isStatic: true }),
-        Matter.Bodies.rectangle(w + t / 2, h / 2, t, h * 2, { isStatic: true }),
+        Matter.Bodies.rectangle(w / 2, h + t / 2, w + 100, t, { isStatic: true }), // Floor
+        Matter.Bodies.rectangle(-t / 2, -h, t, h * 4, { isStatic: true }),       // Extended left wall (for high flying)
+        Matter.Bodies.rectangle(w + t / 2, -h, t, h * 4, { isStatic: true }),     // Extended right wall
+        Matter.Bodies.rectangle(w / 2, -h - t, w, t, { isStatic: true }),         // Ceiling (so they don't fly away forever)
       ]);
     };
 
@@ -55,6 +66,16 @@ export default function HeartPhysicsCanvas() {
     /* Physics loop */
     const tick = () => {
       Matter.Engine.update(engine, 1000 / 60);
+
+      /* Vacuum effect: apply continuous upward force to all hearts */
+      if (vacuumActiveRef.current) {
+        heartsRef.current.forEach(({ body }) => {
+          // Add a little random X force so they swirl
+          const swirl = (Math.random() - 0.5) * 0.0001;
+          Matter.Body.applyForce(body, body.position, { x: swirl, y: -0.0004 });
+        });
+      }
+
       setHearts(
         heartsRef.current.map(({ body, id, color }) => ({
           id, color,
@@ -79,12 +100,10 @@ export default function HeartPhysicsCanvas() {
     const engine = engineRef.current;
     if (!engine) return;
 
-    /* Each consecutive click within 2 seconds increases burst size */
     clickCountRef.current += 1;
-    const multiplier = Math.min(clickCountRef.current, 5); // cap at 5x
+    const multiplier = Math.min(clickCountRef.current, 5);
     const count = (8 + Math.floor(Math.random() * 12)) * multiplier;
 
-    /* Reset click counter after 2 seconds of inactivity */
     clearTimeout(clickCountRef.timeout);
     clickCountRef.timeout = setTimeout(() => { clickCountRef.current = 0; }, 2000);
 
@@ -93,14 +112,14 @@ export default function HeartPhysicsCanvas() {
       const x = Math.random() * window.innerWidth;
       const y = -30 - Math.random() * 300;
       const body = Matter.Bodies.circle(x, y, HEART_SIZE / 2, {
-        restitution: 0.6,
-        friction: 0.2,
-        frictionAir: 0.008,
-        density: 0.002,
+        restitution: 0.8,    // Bouncier
+        friction: 0.1,
+        frictionAir: 0.04,   // High air friction = floaty like a balloon
+        density: 0.001,      // Very light
       });
       Matter.Body.setVelocity(body, {
-        x: (Math.random() - 0.5) * 5,
-        y: Math.random() * 3 + 1,
+        x: (Math.random() - 0.5) * 8, // Wider spread
+        y: Math.random() * 2 + 1,
       });
       Matter.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.15);
       const id = ++idCounter.current;
