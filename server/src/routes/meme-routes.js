@@ -9,7 +9,7 @@ import { adminAuth } from '../middleware/admin-auth.js';
 import { optionalDeviceAuth } from '../middleware/device-auth.js';
 import upload from '../middleware/multer-config.js';
 import { detectMediaType } from '../services/file-type-service.js';
-import { saveFile, deleteStoredFile, getFileUrl } from '../services/file-storage-service.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinary-service.js';
 
 const router = Router();
 
@@ -19,7 +19,7 @@ function formatMeme(meme, reactions) {
     id: meme.id,
     title: meme.title,
     description: meme.description,
-    file_url: getFileUrl(meme.filename),
+    file_url: meme.filename, // We now store the absolute Cloudinary URL directly in filename
     media_type: meme.mediaType,
     file_size: meme.fileSize,
     like_count: meme.likeCount,
@@ -90,13 +90,15 @@ router.post('/', adminAuth, upload.single('file'), async (req, res) => {
     const mediaType = await detectMediaType(req.file.buffer);
     if (!mediaType) return res.status(400).json({ error: 'Unsupported file type' });
 
-    const filename = await saveFile(req.file.buffer, req.file.mimetype);
+    // Upload to Cloudinary instead of local disk
+    const resourceType = mediaType === 'video' ? 'video' : 'image';
+    const secureUrl = await uploadToCloudinary(req.file.buffer, resourceType);
 
     const meme = await prisma.meme.create({
       data: {
         title: title.trim(),
         description: description?.trim() || null,
-        filename,
+        filename: secureUrl, // Store full Cloudinary URL
         mediaType,
         fileSize: req.file.size,
       },
@@ -148,7 +150,9 @@ router.delete('/:id', adminAuth, async (req, res) => {
 
     if (!meme) return res.status(404).json({ error: 'Meme not found' });
 
-    await deleteStoredFile(meme.filename);
+    // Delete from Cloudinary
+    await deleteFromCloudinary(meme.filename);
+    
     await prisma.meme.delete({ where: { id: req.params.id } });
 
     res.json({ message: 'Meme deleted successfully' });

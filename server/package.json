@@ -9,13 +9,15 @@
     "postinstall": "npx prisma generate"
   },
   "dependencies": {
-    "express": "^5.1.0",
+    "@prisma/client": "^6.10.1",
+    "cloudinary": "^2.10.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "multer": "^1.4.5-lts.2",
-    "file-type": "^20.5.0",
+    "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
-    "@prisma/client": "^6.10.1"
+    "file-type": "^20.5.0",
+    "multer": "^1.4.5-lts.2",
+    "streamifier": "^0.1.1"
   },
   "devDependencies": {
     "prisma": "^6.10.1"
