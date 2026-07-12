@@ -19,13 +19,13 @@ export default function MediaPreview({ src, mediaType, alt = '', mode = 'thumbna
   const fitClass = mode === 'thumbnail' ? 'media-preview--cover' : 'media-preview--contain';
 
   const handleMouseEnter = () => {
-    if (mediaType === 'video' && videoRef.current) {
+    if (mode === 'thumbnail' && mediaType === 'video' && videoRef.current) {
       videoRef.current.play().catch(() => {});
     }
   };
 
   const handleMouseLeave = () => {
-    if (mediaType === 'video' && videoRef.current) {
+    if (mode === 'thumbnail' && mediaType === 'video' && videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
@@ -46,13 +46,15 @@ export default function MediaPreview({ src, mediaType, alt = '', mode = 'thumbna
           <video
             ref={videoRef}
             src={src}
-            muted
-            loop
+            muted={mode === 'thumbnail'} /* Muted only for thumbnails so full videos can have sound */
+            loop={mode === 'thumbnail'} /* Loop only in thumbnails */
+            controls={mode === 'full'}  /* Show native video controls in full mode */
             playsInline
             preload="metadata"
             className={`media-preview__element ${loaded ? 'is-loaded' : ''}`}
             onLoadedData={() => setLoaded(true)}
             onError={() => { setLoaded(true); setError(true); }}
+            autoPlay={mode === 'full'} /* Auto-play when opened in full mode */
           />
           {/* Play icon overlay for thumbnails */}
           {mode === 'thumbnail' && loaded && !error && (
