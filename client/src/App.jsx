@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import MainLayout from './layouts/main-layout';
 import HomePage from './pages/home-page';
 import BrowsePage from './pages/browse-page';
-import AdminUploadModal from './components/admin-upload-modal';
+import AdminDashboardModal from './components/admin-dashboard-modal';
 import HeartPhysicsCanvas from './components/heart-physics-canvas';
 import { useKeyboardShortcut } from './hooks/use-keyboard-shortcut';
 import { useAdminAuth } from './hooks/use-admin-auth';
@@ -40,7 +40,7 @@ export default function App() {
       </MainLayout>
 
       {/* Admin upload modal (global overlay) */}
-      <AdminUploadModal
+      <AdminDashboardModal
         isOpen={uploadOpen}
         onClose={() => setUploadOpen(false)}
       />

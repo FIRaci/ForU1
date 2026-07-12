@@ -67,12 +67,28 @@ export default function BrowsePage() {
         setSelectedMeme((prev) => ({ ...prev, like_count: likes, dislike_count: dislikes, user_reaction: userReaction }));
       }
     };
+    const handleEdit = (e) => {
+      const edited = e.detail;
+      setMemes((prev) => prev.map((m) => (m.id === edited.id ? { ...m, title: edited.title, description: edited.description } : m)));
+      if (selectedMeme?.id === edited.id) {
+        setSelectedMeme((prev) => ({ ...prev, title: edited.title, description: edited.description }));
+      }
+    };
+    const handleDelete = (e) => {
+      const deletedId = e.detail;
+      setMemes((prev) => prev.filter((m) => m.id !== deletedId));
+      if (selectedMeme?.id === deletedId) setSelectedMeme(null);
+    };
 
     window.addEventListener('meme-uploaded', handleUpload);
     window.addEventListener('meme-reacted', handleReact);
+    window.addEventListener('meme-edited', handleEdit);
+    window.addEventListener('meme-deleted', handleDelete);
     return () => {
       window.removeEventListener('meme-uploaded', handleUpload);
       window.removeEventListener('meme-reacted', handleReact);
+      window.removeEventListener('meme-edited', handleEdit);
+      window.removeEventListener('meme-deleted', handleDelete);
     };
   }, [type, selectedMeme]);
 
