@@ -65,3 +65,6 @@ export const getUserReaction = (memeId) =>
 
 /** GET /api/stats — gallery statistics */
 export const getStats = () => request('/api/stats');
+
+/** GET /api/memes/backup/export — admin backup */
+export const exportBackup = () => request('/api/memes/backup/export');

@@ -32,6 +32,21 @@ function formatMeme(meme, reactions) {
 }
 
 /**
+ * GET /api/memes/backup/export — Admin export DB
+ */
+router.get('/backup/export', adminAuth, async (req, res) => {
+  try {
+    const memes = await prisma.meme.findMany({
+      include: { reactions: true }
+    });
+    res.json(memes);
+  } catch (err) {
+    console.error('[Backup] Export error:', err.message);
+    res.status(500).json({ error: 'Failed to export backup' });
+  }
+});
+
+/**
  * GET /api/memes
  * List all memes, newest first. Optional ?type=image|gif|video filter.
  */

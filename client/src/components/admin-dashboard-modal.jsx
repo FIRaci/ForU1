@@ -212,6 +212,30 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
                 >
                   Manage Content
                 </button>
+                <button
+                  className="dashboard-modal__tab"
+                  onClick={async () => {
+                    try {
+                      const { exportBackup } = await import('../services/api-service');
+                      const data = await exportBackup();
+                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `foru_backup_${new Date().toISOString().split('T')[0]}.json`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    } catch (err) {
+                      alert('Failed to export backup: ' + err.message);
+                    }
+                  }}
+                  title="Download full database backup as JSON"
+                  style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}
+                >
+                  <IconUpload size={14} style={{ transform: 'rotate(180deg)' }} /> Backup DB
+                </button>
               </div>
             </header>
 
