@@ -8,11 +8,15 @@ import AdminUploadModal from './components/admin-upload-modal';
 import HeartPhysicsCanvas from './components/heart-physics-canvas';
 import { useKeyboardShortcut } from './hooks/use-keyboard-shortcut';
 import { useAdminAuth } from './hooks/use-admin-auth';
+import { useDeviceId } from './hooks/use-device-id';
 import './app.css';
 
 export default function App() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const { isAdmin, promptAdminKey } = useAdminAuth();
+
+  /* Auto-generate device ID on first visit (silent, no login) */
+  useDeviceId();
 
   /* Alt+T: open admin upload modal */
   const handleAdminShortcut = useCallback(() => {

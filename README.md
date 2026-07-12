@@ -7,8 +7,8 @@ A playful meme sharing platform with categorized folders, physics-based heart an
 - 📁 **3 Categorized Folders** — Images, GIFs, Videos with file counts
 - 🔐 **Admin Upload** — Press `Alt+T` to open upload panel (admin key required)
 - 🤖 **Auto File Detection** — Automatically categorizes uploads as image/gif/video
-- ❤️ **Like/Dislike** — Device-based anonymous reactions (persists per device)
-- 💬 **Admin Comments** — Curator notes on each meme
+- ❤️ **Like/Dislike** — Device-based reactions (auto-saved per device, no login)
+- 💬 **Curator Notes** — Admin descriptions on each meme
 - 🫶 **Heart Physics** — Click the heart button for a rain of draggable physics hearts
 - 📱 **Responsive** — Works on desktop and mobile
 - 📅 **Date Sorted** — Today's uploads pinned first
@@ -19,8 +19,9 @@ A playful meme sharing platform with categorized folders, physics-based heart an
 |-------|------|
 | Frontend | React 19 + Vite |
 | Backend | Node.js + Express |
-| Database | PostgreSQL (Neon) |
-| Storage | Cloudinary |
+| ORM | Prisma |
+| Database | PostgreSQL (Render) |
+| File Storage | Local disk (Render) |
 | Frontend Deploy | Vercel |
 | Backend Deploy | Render |
 
@@ -28,15 +29,15 @@ A playful meme sharing platform with categorized folders, physics-based heart an
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL database (recommend [Neon](https://neon.tech) free tier)
-- [Cloudinary](https://cloudinary.com) account (free tier)
+- PostgreSQL database (Render free tier)
 
 ### Backend Setup
 ```bash
 cd server
 cp .env.example .env
-# Fill in your database URL, Cloudinary credentials, and admin secret
+# Fill in DATABASE_URL and ADMIN_SECRET
 npm install
+npx prisma db push    # Create tables
 npm run dev
 ```
 
@@ -49,21 +50,12 @@ npm install
 npm run dev
 ```
 
-### Database Setup
-Run the schema file against your PostgreSQL database:
-```bash
-psql $DATABASE_URL -f server/src/db/schema.sql
-```
-
 ## Environment Variables
 
 ### Backend (`server/.env`)
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `DATABASE_URL` | PostgreSQL connection string from Render |
 | `ADMIN_SECRET` | Secret key for admin uploads |
 | `CORS_ORIGIN` | Frontend URL (e.g., https://foru.vercel.app) |
 | `PORT` | Server port (default: 3001) |
@@ -75,18 +67,19 @@ psql $DATABASE_URL -f server/src/db/schema.sql
 
 ## Deployment
 
-### Vercel (Frontend)
-1. Connect your GitHub repo
-2. Set root directory to `client`
-3. Add `VITE_API_URL` environment variable
-4. Deploy
-
-### Render (Backend)
-1. Create a new Web Service
-2. Set root directory to `server`
+### Render (Backend + Database)
+1. Create a PostgreSQL database on Render
+2. Create a Web Service, root directory: `server`
 3. Build command: `npm install`
 4. Start command: `node src/index.js`
-5. Add all backend environment variables
+5. Add environment variables (DATABASE_URL, ADMIN_SECRET, CORS_ORIGIN)
+6. Add a persistent disk mounted at `/opt/render/project/src/uploads`
+
+### Vercel (Frontend)
+1. Connect your GitHub repo
+2. Root directory: `client`
+3. Add `VITE_API_URL` environment variable
+4. Deploy
 
 ## Admin Usage
 
@@ -96,6 +89,10 @@ psql $DATABASE_URL -f server/src/db/schema.sql
 4. Select a file (image, GIF, or video)
 5. Add a title and description
 6. Click Upload
+
+## No Login Required
+
+Every visitor is automatically identified by a device UUID stored in localStorage. No accounts, no login screens — just open and use. Reactions (like/dislike) are saved per device.
 
 ## License
 

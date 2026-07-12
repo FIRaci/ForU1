@@ -1,45 +1,38 @@
 /**
- * Stats routes — aggregate counts by media type.
+ * Stats routes — aggregate counts by media type using Prisma.
  */
 
 import { Router } from 'express';
-import pool from '../db/pool.js';
+import prisma from '../lib/prisma.js';
 
 const router = Router();
 
 /**
  * GET /api/stats
- * Returns counts of memes grouped by media type, plus total.
+ * Returns meme counts grouped by media type.
  */
 router.get('/', async (_req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT media_type, COUNT(*)::int AS count
-       FROM memes
-       GROUP BY media_type`
-    );
+    const counts = await prisma.meme.groupBy({
+      by: ['mediaType'],
+      _count: { id: true },
+    });
 
-    // Build stats object with defaults
     const stats = { images: 0, gifs: 0, videos: 0, total: 0 };
 
-    for (const row of rows) {
-      switch (row.media_type) {
-        case 'image':
-          stats.images = row.count;
-          break;
-        case 'gif':
-          stats.gifs = row.count;
-          break;
-        case 'video':
-          stats.videos = row.count;
-          break;
+    for (const row of counts) {
+      const count = row._count.id;
+      switch (row.mediaType) {
+        case 'image': stats.images = count; break;
+        case 'gif': stats.gifs = count; break;
+        case 'video': stats.videos = count; break;
       }
-      stats.total += row.count;
+      stats.total += count;
     }
 
     res.json(stats);
   } catch (err) {
-    console.error('[Stats] Error fetching stats:', err.message);
+    console.error('[Stats] Error:', err.message);
     res.status(500).json({ error: 'Failed to fetch stats' });
   }
 });

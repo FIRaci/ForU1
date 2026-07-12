@@ -1,0 +1,42 @@
+// Prisma schema for Foru meme gallery
+// Database: PostgreSQL on Render
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Meme record — stores file metadata + engagement counts
+model Meme {
+  id           String     @id @default(uuid())
+  title        String
+  description  String?
+  filename     String     // stored filename in /uploads
+  mediaType    String     @map("media_type") // image | gif | video
+  fileSize     Int?       @map("file_size")
+  likeCount    Int        @default(0) @map("like_count")
+  dislikeCount Int        @default(0) @map("dislike_count")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  reactions    Reaction[]
+
+  @@index([createdAt(sort: Desc)])
+  @@index([mediaType])
+  @@map("memes")
+}
+
+/// Reaction — one per device per meme (like or dislike)
+model Reaction {
+  memeId    String   @map("meme_id")
+  deviceId  String   @map("device_id")
+  isLike    Boolean  @map("is_like")
+  createdAt DateTime @default(now()) @map("created_at")
+  meme      Meme     @relation(fields: [memeId], references: [id], onDelete: Cascade)
+
+  @@id([memeId, deviceId])
+  @@index([memeId])
+  @@map("reactions")
+}
